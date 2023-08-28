@@ -1,1 +1,1 @@
-alias Just.Ratio
+alias Just.{Diamond, Ratio}

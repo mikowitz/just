@@ -136,6 +136,12 @@ defmodule Just.Ratio do
     new(Integer.pow(n, power), Integer.pow(d, power))
   end
 
+  defimpl String.Chars do
+    def to_string(%@for{numerator: n, denominator: d}) do
+      "#{n}/#{d}"
+    end
+  end
+
   defp reduce(a, b) do
     with g <- Integer.gcd(a, b) do
       {round(a / g), round(b / g)}
