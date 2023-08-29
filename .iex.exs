@@ -1,1 +1,1 @@
-alias Just.{Diamond, Ratio}
+alias Just.{Diamond, Lattice, Lattice.Dimension, Ratio}
