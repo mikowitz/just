@@ -12,7 +12,7 @@ defmodule Just.LatticeTest do
           Dimension.new(Ratio.new(7, 4), :inf)
         ])
 
-      assert Lattice.at(l, [1, 1, 1]) == Ratio.new(105, 32)
+      assert Lattice.at(l, [1, 1, 1]) == Ratio.new(105, 64)
     end
 
     test "extra indices are ignored" do
@@ -23,7 +23,7 @@ defmodule Just.LatticeTest do
           Dimension.new(Ratio.new(7, 4), :inf)
         ])
 
-      assert Lattice.at(l, [1, 1, 1, 3, 5]) == Ratio.new(105, 32)
+      assert Lattice.at(l, [1, 1, 1, 3, 5]) == Ratio.new(105, 64)
     end
 
     test "extra dimensions are ignored" do

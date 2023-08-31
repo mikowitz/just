@@ -24,7 +24,9 @@ defmodule Just.MixProject do
       {:credo, "~> 1.7", only: [:test], runtime: false},
       {:dialyxir, "~> 1.3", only: [:test], runtime: false},
       {:ex_doc, "~> 0.30", runtime: false},
-      {:mix_test_watch, "~> 1.0", only: [:test], runtime: false}
+      {:mix_test_watch, "~> 1.0", only: [:test], runtime: false},
+      {:rodiex,
+       git: "https://github.com/mikowitz/rodiex", ref: "a57e394946e11155537facda5841cbb5a5dd8c0a"}
     ]
   end
 end

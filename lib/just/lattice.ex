@@ -13,7 +13,7 @@ defmodule Just.Lattice do
   and queried to find the ratio at any point in the lattice:
 
       iex> Lattice.at(lattice, [1,1,1])
-      %Just.Ratio{numerator: 105, denominator: 32}
+      %Just.Ratio{numerator: 105, denominator: 64}
 
 
   Due to the potentially multi-dimensional and unbounded nature of lattices, there
@@ -48,5 +48,6 @@ defmodule Just.Lattice do
     Enum.zip(dimensions, indices)
     |> Enum.map(fn {dim, index} -> Dimension.at(dim, index) end)
     |> Enum.reduce(Ratio.new(1, 1), &Ratio.multiply/2)
+    |> Ratio.normalize()
   end
 end

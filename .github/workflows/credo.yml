@@ -25,6 +25,8 @@ jobs:
         elixir: ["1.14.5"]
 
     steps:
+      - run: sudo apt install -y --no-install-recommends libasound2-dev pkg-config
+
       - uses: actions/checkout@v3
 
       - name: Set up Elixir

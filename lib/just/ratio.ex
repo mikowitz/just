@@ -142,6 +142,14 @@ defmodule Just.Ratio do
     end
   end
 
+  defimpl Just.Play do
+    def play(%@for{numerator: n, denominator: d}, root \\ 440.0) do
+      Rodiex.play(root)
+      Rodiex.play(root * n / d)
+      Rodiex.play_chord([root, root * n / d])
+    end
+  end
+
   defp reduce(a, b) do
     with g <- Integer.gcd(a, b) do
       {round(a / g), round(b / g)}
