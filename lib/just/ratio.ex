@@ -3,6 +3,8 @@ defmodule Just.Ratio do
   Models a just intonation interval as a ratio of integers.
   """
 
+  alias Just.EqualTemperedInterval
+
   defstruct [:numerator, :denominator]
 
   @type t :: %__MODULE__{
@@ -136,6 +138,44 @@ defmodule Just.Ratio do
     new(Integer.pow(n, power), Integer.pow(d, power))
   end
 
+  @doc """
+  Returns the 12-step equal tempered approximation of the ratio
+
+  Returns at tuple of the nearest `Just.EqualTemperedInterval`, as well as the
+  number of cents difference between the JI ratio and the ET interval
+
+  ## Example
+
+      iex> r = Ratio.new(7, 4)
+      iex> alias Just.Temperaments.Equal.Twelve
+      iex> Ratio.to_approximate_equal_tempered_interval(r, Twelve)
+      {%Twelve{steps: 10}, -31.174093530875098}
+
+  """
+  @spec to_approximate_equal_tempered_interval(t(), module()) ::
+          {EqualTemperedInterval.t(), number()}
+  def to_approximate_equal_tempered_interval(%__MODULE__{} = ratio, temperament) do
+    %__MODULE__{numerator: n, denominator: d} = normalize(ratio)
+    f = n / d
+
+    ji_cents = 1200 * :math.log2(f)
+    et_cents = round(ji_cents / temperament.octave_divisor()) * temperament.octave_divisor()
+
+    et_interval = struct(temperament, steps: round(et_cents / temperament.octave_divisor()))
+
+    {et_interval, ji_cents - et_cents}
+  end
+
+  def compare(%__MODULE__{} = ratio) do
+    {et_interval, cents_diff} =
+      to_approximate_equal_tempered_interval(ratio, Just.EqualTemperedInterval)
+
+    IO.puts(ratio)
+    Just.play(ratio, chord_only: true)
+    IO.puts("#{et_interval} (#{-cents_diff})")
+    Just.play(et_interval, chord_only: true)
+  end
+
   defimpl String.Chars do
     def to_string(%@for{numerator: n, denominator: d}) do
       "#{n}/#{d}"
@@ -143,9 +183,15 @@ defmodule Just.Ratio do
   end
 
   defimpl Just.Play do
-    def play(%@for{numerator: n, denominator: d}, root \\ 440.0) do
-      Rodiex.play(root)
-      Rodiex.play(root * n / d)
+    def play(%@for{numerator: n, denominator: d}, opts) do
+      root = Keyword.get(opts, :root, 440.0)
+      chord_only = Keyword.get(opts, :chord_only, false)
+
+      if !chord_only do
+        Rodiex.play(root)
+        Rodiex.play(root * n / d)
+      end
+
       Rodiex.play_chord([root, root * n / d])
     end
   end
