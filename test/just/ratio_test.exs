@@ -1,7 +1,7 @@
 defmodule Just.RatioTest do
   use ExUnit.Case, async: true
 
-  alias Just.{Temperaments.Equal.Twelve, Ratio}
+  alias Just.{EqualTemperament, Ratio}
   doctest Ratio
 
   describe "multiply" do
@@ -60,9 +60,11 @@ defmodule Just.RatioTest do
     test "returns the equal tempered interval + the cents offset" do
       r = Ratio.new(3, 2)
 
-      {et_interval, cents_offset} = Ratio.to_approximate_equal_tempered_interval(r, Twelve)
+      twelve_et = EqualTemperament.new(12)
 
-      assert et_interval == Twelve.perfect_fifth()
+      {et_interval, cents_offset} = Ratio.to_approximate_equal_tempered_interval(r, twelve_et)
+
+      assert et_interval == %EqualTemperament.Interval{temperament: twelve_et, steps: 7}
       assert_in_delta cents_offset, 1.95, 0.01
     end
   end

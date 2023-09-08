@@ -3,7 +3,7 @@ defmodule Just.Ratio do
   Models a just intonation interval as a ratio of integers.
   """
 
-  alias Just.EqualTemperedInterval
+  alias Just.{EqualTemperament, EqualTemperament.Interval}
 
   defstruct [:numerator, :denominator]
 
@@ -147,28 +147,31 @@ defmodule Just.Ratio do
   ## Example
 
       iex> r = Ratio.new(7, 4)
-      iex> alias Just.Temperaments.Equal.Twelve
-      iex> Ratio.to_approximate_equal_tempered_interval(r, Twelve)
-      {%Twelve{steps: 10}, -31.174093530875098}
+      iex> twelve_et = Just.EqualTemperament.new(12)
+      iex> {et_interval, cents_offset} = Ratio.to_approximate_equal_tempered_interval(r, twelve_et)
+      iex> cents_offset
+      -31.174093530875098
+      iex> et_interval.steps
+      10
 
   """
-  @spec to_approximate_equal_tempered_interval(t(), module()) ::
-          {EqualTemperedInterval.t(), number()}
+  @spec to_approximate_equal_tempered_interval(t(), EqualTemperament.t()) ::
+          {Interval.t(), number()}
   def to_approximate_equal_tempered_interval(%__MODULE__{} = ratio, temperament) do
     %__MODULE__{numerator: n, denominator: d} = normalize(ratio)
     f = n / d
 
+    octave_divisor = EqualTemperament.octave_divisor(temperament)
     ji_cents = 1200 * :math.log2(f)
-    et_cents = round(ji_cents / temperament.octave_divisor()) * temperament.octave_divisor()
+    et_cents = round(ji_cents / octave_divisor) * octave_divisor
 
-    et_interval = struct(temperament, steps: round(et_cents / temperament.octave_divisor()))
+    et_interval = Interval.new(temperament, round(et_cents / octave_divisor))
 
     {et_interval, ji_cents - et_cents}
   end
 
-  def compare(%__MODULE__{} = ratio) do
-    {et_interval, cents_diff} =
-      to_approximate_equal_tempered_interval(ratio, Just.EqualTemperedInterval)
+  def compare(%__MODULE__{} = ratio, temperament \\ EqualTemperament.new(12)) do
+    {et_interval, cents_diff} = to_approximate_equal_tempered_interval(ratio, temperament)
 
     IO.puts(ratio)
     Just.play(ratio, chord_only: true)
